@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+  <body>
+    <canvas id="starCanvas"></canvas>
+    <nav class="main-menu" id="main-menu">
+      <a href="#" class="menu-item" data-action="home">首页</a>
+      <a href="#" class="menu-item" data-action="files">小白的文件服务器</a>
+      <a
+        href="https://www.kclouder.cn/games/tetris/"
+        target="_blank"
+        class="menu-item"
+        >小白收藏的工具</a
+      >
+      <a href="#" class="menu-item" data-action="watch">小白观剧</a>
+      <a href="#" class="menu-item" data-action="2048">2048</a>
+      <a href="#" class="menu-item" id="show-calculator">米数生成器</a>
+    </nav>
+    <div id="calculator-container">
+      <h2 style="text-align: center">机房米数生成器</h2>
+      <div class="config-section">
+        <h3>机房配置</h3>
+        <div>
+          <label>机房类型:</label
+          ><select id="room-type">
+            <option value="same">同机房</option>
+            <option value="same-floor">同层跨机房</option>
+            <option value="cross-floor">跨层机房</option>
+          </select>
+        </div>
+        <div>
+          <label>冷热通道:</label
+          ><select id="aisle-type">
+            <option value="cold">冷通道</option>
+            <option value="hot">热通道</option>
+          </select>
+        </div>
+        <div>
+          <label>机柜宽度 (米):</label
+          ><select id="cabinet-width">
+            <option value="0.6">0.6</option>
+            <option value="0.8">0.8</option>
+            <option value="1.0">1.0</option>
+          </select>
+        </div>
+        <div>
+          <label>机柜U位数 (1-50):</label
+          ><input type="number" id="cabinet-u" value="50" min="1" max="50" />
+        </div>
+        <div>
+          <label>机柜顶到桥架距离 (米):</label
+          ><input
+            type="number"
+            id="bridge-height"
+            value="0.7775"
+            step="0.1"
+            min="0"
+          />
+        </div>
+        <div>
+          <label>机柜行数:</label
+          ><input type="number" id="row-count" value="2" min="1" />
+        </div>
+        <div id="cold-aisle-section">
+          <label>冷通道宽度 (米):</label
+          ><input
+            type="number"
+            id="cold-aisle-width"
+            value="1.0"
+            step="0.1"
+            min="0"
+          />
+        </div>
+        <div id="hot-aisle-section" style="display: none">
+          <label>热通道宽度 (米):</label
+          ><input
+            type="number"
+            id="hot-aisle-width"
+            value="1.0"
+            step="0.1"
+            min="0"
+          />
+        </div>
+        <div id="row-tabs" class="row-tabs"></div>
+        <div id="row-config"><h4>每行机柜配置</h4></div>
+        <div id="row-spacing-config"><h4>行间距配置</h4></div>
+        <button id="add-pillar-btn">添加柱子</button>
+      </div>
+      <div
+        class="cross-room-section"
+        id="cross-room-config"
+        style="display: none"
+      >
+        <h3>跨机房配置</h3>
+        <div id="same-floor-config">
+          <label>门到原点距离 X (米):</label
+          ><input type="number" id="door-x" value="0" step="0.1" min="0" />
+          <label>门到原点距离 Y (米):</label
+          ><input type="number" id="door-y" value="0" step="0.1" min="0" />
+        </div>
+        <div id="cross-floor-config">
+          <label>竖井位置 X (米):</label
+          ><input type="number" id="shaft-x" value="0" step="0.1" min="0" />
+          <label>竖井位置 Y (米):</label
+          ><input type="number" id="shaft-y" value="0" step="0.1" min="0" />
+          <label>竖井高度 (米):</label
+          ><input
+            type="number"
+            id="shaft-height"
+            value="3.0"
+            step="0.1"
+            min="0"
+          />
+        </div>
+      </div>
+      <div class="batch-device-section">
+        <h3>批量设置设备</h3>
+        <button id="batch-config-btn">批量设置</button>
+        <div id="batch-config-section">
+          <div class="batch-input">
+            <label>选择行:</label
+            ><select id="batch-row"></select>
+          </div>
+          <div class="batch-config-group">
+            <h4>X坐标 (米)</h4>
+            <div class="option-group">
+              <input
+                type="radio"
+                name="x-mode"
+                value="same"
+                id="x-mode-same"
+                checked
+              />
+              <label for="x-mode-same">相同值:</label>
+              <input type="number" id="x-same" value="0.3" step="0.1" min="0" />
+            </div>
+            <div class="option-group">
+              <input
+                type="radio"
+                name="x-mode"
+                value="increment"
+                id="x-mode-increment"
+              />
+              <label for="x-mode-increment">累加:</label>
+              <span>起始值</span>
+              <input
+                type="number"
+                id="x-start"
+                value="0.3"
+                step="0.1"
+                min="0"
+              />
+              <span>步长</span>
+              <input type="number" id="x-step" value="0.6" step="0.1" min="0" />
+            </div>
+          </div>
+          <div class="batch-config-group">
+            <h4>Y坐标 (米)</h4>
+            <div class="option-group">
+              <input
+                type="radio"
+                name="y-mode"
+                value="same"
+                id="y-mode-same"
+                checked
+              />
+              <label for="y-mode-same">相同值:</label>
+              <input type="number" id="y-same" value="0.3" step="0.1" min="0" />
+            </div>
+            <div class="option-group">
+              <input
+                type="radio"
+                name="y-mode"
+                value="increment"
+                id="y-mode-increment"
+              />
+              <label for="y-mode-increment">累加:</label>
+              <span>起始值</span>
+              <input
+                type="number"
+                id="y-start"
+                value="0.3"
+                step="0.1"
+                min="0"
+              />
+              <span>步长</span>
+              <input type="number" id="y-step" value="0.1" step="0.1" min="0" />
+            </div>
+          </div>
+          <div class="batch-config-group">
+            <h4>Z坐标 (U)</h4>
+            <div class="option-group">
+              <input
+                type="radio"
+                name="z-mode"
+                value="same"
+                id="z-mode-same"
+                checked
+              />
+              <label for="z-mode-same">相同值:</label>
+              <input type="number" id="z-same" value="50" step="1" min="1" />
+            </div>
+            <div class="option-group">
+              <input
+                type="radio"
+                name="z-mode"
+                value="increment"
+                id="z-mode-increment"
+              />
+              <label for="z-mode-increment">累加:</label>
+              <span>起始值</span>
+              <input type="number" id="z-start" value="50" step="1" min="1" />
+              <span>步长</span>
+              <input type="number" id="z-step" value="1" step="1" min="0" />
+            </div>
+          </div>
+          <div class="batch-input">
+            <label>设备数量 (≤行机柜数):</label
+            ><input type="number" id="batch-count" value="10" min="1" />
+          </div>
+          <button id="batch-confirm-btn">确认</button>
+          <button id="batch-cancel-btn">取消</button>
+        </div>
+      </div>
+      <div class="device-section">
+        <h3>设备坐标 (X, Y为米, Z为U位)</h3>
+        <div>
+          <label>连线模式 (一对多):</label
+          ><input type="checkbox" id="switch-mode" />
+        </div>
+        <div id="devices">
+          <div class="device-input">
+            设备1:
+            <input
+              type="number"
+              placeholder="x (米)"
+              class="x"
+              step="0.1"
+              min="0"
+            />
+            <input
+              type="number"
+              placeholder="y (米)"
+              class="y"
+              step="0.1"
+              min="0"
+            />
+            <input
+              type="number"
+              placeholder="z (U)"
+              class="z"
+              step="1"
+              min="1"
+            />
+          </div>
+          <div class="device-input">
+            设备2:
+            <input
+              type="number"
+              placeholder="x (米)"
+              class="x"
+              step="0.1"
+              min="0"
+            />
+            <input
+              type="number"
+              placeholder="y (米)"
+              class="y"
+              step="0.1"
+              min="0"
+            />
+            <input
+              type="number"
+              placeholder="z (U)"
+              class="z"
+              step="1"
+              min="1"
+            />
+          </div>
+        </div>
+        <button id="add-device-btn">添加设备</button>
+        <button id="remove-device-btn">删除设备</button>
+      </div>
+      <button id="calculate-btn">计算距离</button>
+      <button id="back-btn">返回</button>
+      <h3>设备距离</h3>
+      <div id="result-table"></div>
+      <div id="cable-statistics" class="statistics"></div>
+      <div id="calculation-steps" class="calculation-steps"></div>
+    </div>
+
+    <script>
+      // 保留1位小数，不四舍五入
+      function toOneDecimal(num) {
+        return Math.floor(num * 10) / 10;
+      }
+
+      // 画布动画
+      const canvas = document.getElementById("starCanvas");
+      const ctx = canvas.getContext("2d");
+      let particles = [];
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+      class StarParticle {
+        constructor(x, y) {
+          this.x = x;
+          this.y = y;
+          this.size = Math.random() * 3 + 1;
+          this.speedX = (Math.random() - 0.5) * 2;
+          this.speedY = (Math.random() - 0.5) * 2;
+          this.hue = Math.random() * 360;
+          this.life = 1;
+        }
+        draw() {
+          ctx.beginPath();
+          this.hue = (this.hue + 3) % 360;
+          const spikes = 5;
+          const outerRadius = this.size;
+          const innerRadius = this.size / 2;
+          for (let i = 0; i < spikes * 2; i++) {
+            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+            const angle = (Math.PI * i) / spikes;
+            ctx.lineTo(
+              this.x + radius * Math.cos(angle),
+              this.y + radius * Math.sin(angle)
+            );
+          }
+          ctx.closePath();
+          ctx.fillStyle = `hsla(${this.hue}, 100%, 50%, ${this.life})`;
+          ctx.fill();
+        }
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          this.speedX *= 0.96;
+          this.speedY *= 0.96;
+          this.life -= 0.015;
+        }
+      }
+      canvas.addEventListener("mousemove", (e) => {
+        for (let i = 0; i < 5; i++)
+          particles.push(new StarParticle(e.clientX, e.clientY));
+      });
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((particle, index) => {
+          particle.update();
+          particle.draw();
+          if (particle.life <= 0) particles.splice(index, 1);
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      // 菜单交互
+      document.querySelectorAll(".menu-item").forEach((item) => {
+        item.addEventListener("mouseover", () => {
+          item.style.transform = "scale(1.1) translateY(-5px)";
+          item.style.filter = "drop-shadow(0 0 8px rgba(255,255,255,0.5))";
+        });
+        item.addEventListener("mouseout", () => {
+          item.style.transform = "scale(1)";
+          item.style.filter = "none";
+        });
+        if (item.dataset.action)
+          item.addEventListener("click", (e) => {
+            e.preventDefault();
+            alert(`点击了 ${item.textContent}，功能待实现！`);
+          });
+      });
+
+      // 界面控制
+      const calculatorContainer = document.getElementById(
+        "calculator-container"
+      );
+      const mainMenu = document.getElementById("main-menu");
+      const showCalculator = document.getElementById("show-calculator");
+      const backBtn = document.getElementById("back-btn");
+      const addDeviceBtn = document.getElementById("add-device-btn");
+      const removeDeviceBtn = document.getElementById("remove-device-btn");
+      const addPillarBtn = document.getElementById("add-pillar-btn");
+      const batchConfigBtn = document.getElementById("batch-config-btn");
+      const batchConfirmBtn = document.getElementById("batch-confirm-btn");
+      const batchCancelBtn = document.getElementById("batch-cancel-btn");
+      const calculateBtn = document.getElementById("calculate-btn");
+      const devicesContainer = document.getElementById("devices");
+      const rowConfig = document.getElementById("row-config");
+      const rowTabs = document.getElementById("row-tabs");
+      const rowSpacingConfig = document.getElementById("row-spacing-config");
+      const roomTypeSelect = document.getElementById("room-type");
+      const aisleTypeSelect = document.getElementById("aisle-type");
+      const coldAisleSection = document.getElementById("cold-aisle-section");
+      const hotAisleSection = document.getElementById("hot-aisle-section");
+      const crossRoomConfig = document.getElementById("cross-room-config");
+      const sameFloorConfig = document.getElementById("same-floor-config");
+      const crossFloorConfig = document.getElementById("cross-floor-config");
+      const switchMode = document.getElementById("switch-mode");
+      const batchConfigSection = document.getElementById(
+        "batch-config-section"
+      );
+      const batchRowSelect = document.getElementById("batch-row");
+
+      roomTypeSelect.addEventListener("change", () => {
+        try {
+          if (roomTypeSelect.value === "same")
+            crossRoomConfig.style.display = "none";
+          else if (roomTypeSelect.value === "same-floor") {
+            crossRoomConfig.style.display = "block";
+            sameFloorConfig.style.display = "block";
+            crossFloorConfig.style.display = "none";
+          } else {
+            crossRoomConfig.style.display = "block";
+            sameFloorConfig.style.display = "none";
+            crossFloorConfig.style.display = "block";
+          }
+        } catch (error) {
+          console.error("roomTypeSelect error:", error);
+        }
+      });
+
+      aisleTypeSelect.addEventListener("change", () => {
+        try {
+          if (aisleTypeSelect.value === "cold") {
+            coldAisleSection.style.display = "block";
+            hotAisleSection.style.display = "none";
+          } else {
+            coldAisleSection.style.display = "none";
+            hotAisleSection.style.display = "block";
+          }
+        } catch (error) {
+          console.error("aisleTypeSelect error:", error);
+        }
+      });
+
+      // 行配置
+      let pillarCountPerRow = [];
+      function updateRowConfig() {
+        try {
+          const rowCount =
+            parseInt(document.getElementById("row-count").value) || 1;
+          pillarCountPerRow = Array(rowCount).fill(1);
+          rowTabs.innerHTML = "";
+          rowConfig.innerHTML = "<h4>每行机柜配置</h4>";
+          rowSpacingConfig.innerHTML = "<h4>行间距配置</h4>";
+          batchRowSelect.innerHTML = "";
+          for (let i = 1; i <= rowCount; i++) {
+            const tab = document.createElement("span");
+            tab.className = "row-tab";
+            tab.dataset.row = i;
+            tab.textContent = `行${i}`;
+            if (i === 1) tab.classList.add("active");
+            tab.addEventListener("click", () => {
+              document
+                .querySelectorAll(".row-tab")
+                .forEach((t) => t.classList.remove("active"));
+              tab.classList.add("active");
+              document
+                .querySelectorAll(".row-input")
+                .forEach((r) => r.classList.remove("active"));
+              document
+                .querySelector(`.row-input[data-row="${i}"]`)
+                .classList.add("active");
+            });
+            rowTabs.appendChild(tab);
+            const rowDiv = document.createElement("div");
+            rowDiv.className = `row-input ${i === 1 ? "active" : ""}`;
+            rowDiv.dataset.row = i;
+            rowDiv.innerHTML = `<label>行${i}机柜数:</label><input type="number" class="row-cabinet-count" value="10" min="1"><div class="pillar-config"><h5>行${i}柱子配置</h5><div class="pillar-input">柱子1: <label>位置 (第几柜后):</label><input type="number" class="pillar-position" value="0" min="0"><label>宽度 (米):</label><input type="number" class="pillar-width" value="0.5" step="0.1" min="0"></div></div><button class="show-layout-btn" data-row="${i}">查看布局</button><div class="layout-output" id="layout-output-${i}"></div>`;
+            rowConfig.appendChild(rowDiv);
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = `行${i}`;
+            batchRowSelect.appendChild(option);
+          }
+          for (let i = 1; i < rowCount; i++) {
+            const spacingDiv = document.createElement("div");
+            spacingDiv.className = "spacing-input";
+            spacingDiv.innerHTML = `<label>行${i}与行${
+              i + 1
+            }间距:</label><select class="row-spacing-type"><option value="aisle" selected>通道</option><option value="corridor">过道</option></select><input type="number" class="corridor-width" value="1.0" step="0.1" min="0" style="display: none;" placeholder="过道宽度 (米)">`;
+            rowSpacingConfig.appendChild(spacingDiv);
+          }
+          document.querySelectorAll(".row-spacing-type").forEach((select) => {
+            select.addEventListener("change", () => {
+              const corridorInput = select.nextElementSibling;
+              corridorInput.style.display =
+                select.value === "corridor" ? "inline-block" : "none";
+            });
+          });
+          document
+            .querySelectorAll(".show-layout-btn")
+            .forEach((btn) =>
+              btn.addEventListener("click", () =>
+                showRowLayout(btn.dataset.row)
+              )
+            );
+          updateBatchCountMax();
+        } catch (error) {
+          console.error("updateRowConfig error:", error);
+          alert("行配置初始化失败，请检查输入！");
+        }
+      }
+      document
+        .getElementById("row-count")
+        .addEventListener("change", updateRowConfig);
+      window.addEventListener("load", updateRowConfig);
+
+      addPillarBtn.addEventListener("click", () => {
+        try {
+          const activeRow = document.querySelector(".row-input.active");
+          const rowIndex = parseInt(activeRow.dataset.row) - 1;
+          if (pillarCountPerRow[rowIndex] < 2) {
+            pillarCountPerRow[rowIndex]++;
+            const pillarConfig = activeRow.querySelector(".pillar-config");
+            const pillarInput = document.createElement("div");
+            pillarInput.className = "pillar-input";
+            pillarInput.innerHTML = `柱子${pillarCountPerRow[rowIndex]}: <label>位置 (第几柜后):</label><input type="number" class="pillar-position" value="0" min="0"><label>宽度 (米):</label><input type="number" class="pillar-width" value="0.5" step="0.1" min="0">`;
+            pillarConfig.appendChild(pillarInput);
+          }
+        } catch (error) {
+          console.error("addPillarBtn error:", error);
+          alert("添加柱子失败，请重试！");
+        }
+      });
+
+      function calculateRowY(inputY) {
+        try {
+          const cabinetWidth =
+            parseFloat(document.getElementById("cabinet-width").value) || 0.6;
+          const coldAisleWidth =
+            parseFloat(document.getElementById("cold-aisle-width").value) ||
+            1.0;
+          const hotAisleWidth =
+            parseFloat(document.getElementById("hot-aisle-width").value) || 1.0;
+          const aisleType = aisleTypeSelect.value;
+          const rowCount =
+            parseInt(document.getElementById("row-count").value) || 1;
+          const aisleWidth =
+            aisleType === "cold" ? coldAisleWidth : hotAisleWidth;
+          const spacingTypes = Array.from(
+            document.querySelectorAll(".row-spacing-type")
+          ).map((s) => s.value);
+          const corridorWidths = Array.from(
+            document.querySelectorAll(".corridor-width")
+          ).map((w) => parseFloat(w.value) || 1.0);
+          let rowIndex = Math.round(inputY);
+          if (isNaN(rowIndex) || rowIndex < 0) rowIndex = rowCount - 1;
+          if (rowIndex >= rowCount) rowIndex = rowCount - 1;
+          let y = cabinetWidth / 2;
+          for (let i = rowCount - 1; i > rowIndex; i--) {
+            const spacingType = spacingTypes[i - 1] || "aisle";
+            const spacingWidth =
+              spacingType === "aisle" ? aisleWidth : corridorWidths[i - 1];
+            y += spacingWidth;
+            if (i > 1) y += cabinetWidth;
+          }
+          return toOneDecimal(y);
+        } catch (error) {
+          console.error("calculateRowY error:", error);
+          return 0.3;
+        }
+      }
+
+      function showRowLayout(rowIndex) {
+        try {
+          const layoutOutput = document.getElementById(
+            `layout-output-${rowIndex}`
+          );
+          const btn = document.querySelector(
+            `.show-layout-btn[data-row="${rowIndex}"]`
+          );
+          if (layoutOutput.innerHTML) {
+            layoutOutput.innerHTML = "";
+            btn.textContent = "查看布局";
+            return;
+          }
+          btn.textContent = "隐藏布局";
+          const rowInput = document.querySelector(
+            `.row-input[data-row="${rowIndex}"]`
+          );
+          const cabinetCount =
+            parseInt(rowInput.querySelector(".row-cabinet-count").value) || 10;
+          const pillars = [];
+          rowInput.querySelectorAll(".pillar-input").forEach((pillar) => {
+            const position = parseInt(
+              pillar.querySelector(".pillar-position").value
+            );
+            const width = parseFloat(
+              pillar.querySelector(".pillar-width").value
+            );
+            if (position > 0 && position <= cabinetCount)
+              pillars.push({ position, width });
+          });
+          pillars.sort((a, b) => a.position - b.position);
+          const cabinetWidth =
+            parseFloat(document.getElementById("cabinet-width").value) || 0.6;
+          let layout = [];
+          let currentX = 0;
+          const y = calculateRowY(parseInt(rowIndex) - 1);
+          for (let i = 1; i <= cabinetCount; i++) {
+            const xCenter = toOneDecimal(currentX + cabinetWidth / 2);
+            layout.push(`柜${i} (${xCenter},${y},0)`);
+            currentX += cabinetWidth;
+            pillars.forEach((pillar) => {
+              if (pillar.position === i) {
+                layout.push(`柱 (${toOneDecimal(currentX)},${y},0)`);
+                currentX += pillar.width;
+              }
+            });
+          }
+          let layoutHTML = `<p>行${rowIndex}布局: ${layout.join(" ")}</p>`;
+          layoutHTML +=
+            '<table class="layout-table"><tr><th>元素</th><th>X (米)</th><th>Y (米)</th><th>Z (米)</th></tr>';
+          layout.forEach((item) => {
+            const [name, coords] = item.split(" (");
+            const [x, y, z] = coords.slice(0, -1).split(",");
+            layoutHTML += `<tr><td>${name}</td><td>${x}</td><td>${y}</td><td>${z}</td></tr>`;
+          });
+          layoutHTML += "</table>";
+          layoutOutput.innerHTML = layoutHTML;
+        } catch (error) {
+          console.error("showRowLayout error:", error);
+          alert("查看布局失败，请检查行配置！");
+        }
+      }
+
+      // 批量设置设备
+      function updateBatchCountMax() {
+        try {
+          const rowIndex = parseInt(batchRowSelect.value) || 1;
+          const rowInput = document.querySelector(
+            `.row-input[data-row="${rowIndex}"]`
+          );
+          if (!rowInput) return;
+          const cabinetCount =
+            parseInt(rowInput.querySelector(".row-cabinet-count").value) || 10;
+          const batchCountInput = document.getElementById("batch-count");
+          batchCountInput.max = cabinetCount;
+          batchCountInput.value = Math.min(
+            parseInt(batchCountInput.value) || 10,
+            cabinetCount
+          );
+        } catch (error) {
+          console.error("updateBatchCountMax error:", error);
+        }
+      }
+
+      // 单选框切换时禁用无关输入
+      function toggleInputState(mode, sameInput, startInput, stepInput) {
+        sameInput.disabled = mode === "increment";
+        startInput.disabled = mode === "same";
+        stepInput.disabled = mode === "same";
+      }
+
+      document.querySelectorAll('input[name="x-mode"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          console.log("X mode changed to:", radio.value);
+          toggleInputState(
+            radio.value,
+            document.getElementById("x-same"),
+            document.getElementById("x-start"),
+            document.getElementById("x-step")
+          );
+        });
+      });
+      document.querySelectorAll('input[name="y-mode"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          console.log("Y mode changed to:", radio.value);
+          toggleInputState(
+            radio.value,
+            document.getElementById("y-same"),
+            document.getElementById("y-start"),
+            document.getElementById("y-step")
+          );
+        });
+      });
+      document.querySelectorAll('input[name="z-mode"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          console.log("Z mode changed to:", radio.value);
+          toggleInputState(
+            radio.value,
+            document.getElementById("z-same"),
+            document.getElementById("z-start"),
+            document.getElementById("z-step")
+          );
+        });
+      });
+
+      batchConfigBtn.addEventListener("click", () => {
+        try {
+          batchConfigSection.style.display = "block";
+          toggleInputState(
+            document.querySelector('input[name="x-mode"]:checked').value,
+            document.getElementById("x-same"),
+            document.getElementById("x-start"),
+            document.getElementById("x-step")
+          );
+          toggleInputState(
+            document.querySelector('input[name="y-mode"]:checked').value,
+            document.getElementById("y-same"),
+            document.getElementById("y-start"),
+            document.getElementById("y-step")
+          );
+          toggleInputState(
+            document.querySelector('input[name="z-mode"]:checked').value,
+            document.getElementById("z-same"),
+            document.getElementById("z-start"),
+            document.getElementById("z-step")
+          );
+          updateBatchCountMax();
+        } catch (error) {
+          console.error("batchConfigBtn error:", error);
+          alert("打开批量设置失败，请刷新页面！");
+        }
+      });
+
+      batchCancelBtn.addEventListener("click", () => {
+        try {
+          batchConfigSection.style.display = "none";
+        } catch (error) {
+          console.error("batchCancelBtn error:", error);
+        }
+      });
+
+      batchRowSelect.addEventListener("change", updateBatchCountMax);
+
+      batchConfirmBtn.addEventListener("click", () => {
+        try {
+          console.log("batchConfirmBtn clicked");
+          const rowIndex = parseInt(batchRowSelect.value) || 1;
+          const rowInput = document.querySelector(
+            `.row-input[data-row="${rowIndex}"]`
+          );
+          if (!rowInput) {
+            alert("未找到行配置，请检查行选择！");
+            return;
+          }
+          const cabinetCount =
+            parseInt(rowInput.querySelector(".row-cabinet-count").value) || 10;
+          const cabinetWidth =
+            parseFloat(document.getElementById("cabinet-width").value) || 0.6;
+          let count =
+            parseInt(document.getElementById("batch-count").value) || 1;
+          if (isNaN(count) || count < 1 || count > cabinetCount) {
+            alert(`设备数量无效，必须在1到${cabinetCount}之间`);
+            return;
+          }
+          const pillars = [];
+          rowInput.querySelectorAll(".pillar-input").forEach((pillar) => {
+            const position =
+              parseInt(pillar.querySelector(".pillar-position").value) || 0;
+            const width =
+              parseFloat(pillar.querySelector(".pillar-width").value) || 0.5;
+            if (position > 0 && position <= cabinetCount) {
+              const pillarX = toOneDecimal(position * cabinetWidth);
+              pillars.push({ x: pillarX, width });
+            }
+          });
+          console.log("Pillars:", pillars);
+          const xMode =
+            document.querySelector('input[name="x-mode"]:checked')?.value ||
+            "same";
+          const yMode =
+            document.querySelector('input[name="y-mode"]:checked')?.value ||
+            "same";
+          const zMode =
+            document.querySelector('input[name="z-mode"]:checked')?.value ||
+            "same";
+          console.log("Modes:", { xMode, yMode, zMode });
+          let xValues = [],
+            yValues = [],
+            zValues = [];
+          if (xMode === "same") {
+            const xSame =
+              parseFloat(document.getElementById("x-same").value) || 0.3;
+            xValues = Array(count).fill(toOneDecimal(xSame));
+          } else {
+            const xStart =
+              parseFloat(document.getElementById("x-start").value) || 0.3;
+            const xStep =
+              parseFloat(document.getElementById("x-step").value) || 0.6;
+            console.log("X increment:", { xStart, xStep });
+            for (let i = 0; i < count; i++) {
+              const xValue = toOneDecimal(xStart + i * xStep);
+              xValues.push(xValue);
+            }
+          }
+          if (yMode === "same") {
+            const ySame =
+              parseFloat(document.getElementById("y-same").value) || 0.3;
+            yValues = Array(count).fill(toOneDecimal(ySame));
+          } else {
+            const yStart =
+              parseFloat(document.getElementById("y-start").value) || 0.3;
+            const yStep =
+              parseFloat(document.getElementById("y-step").value) || 0.1;
+            for (let i = 0; i < count; i++) {
+              yValues.push(toOneDecimal(yStart + i * yStep));
+            }
+          }
+          if (zMode === "same") {
+            const zSame =
+              parseInt(document.getElementById("z-same").value) || 50;
+            zValues = Array(count).fill(zSame);
+          } else {
+            const zStart =
+              parseInt(document.getElementById("z-start").value) || 50;
+            const zStep =
+              parseInt(document.getElementById("z-step").value) || 1;
+            for (let i = 0; i < count; i++) {
+              zValues.push(zStart + i * zStep);
+            }
+          }
+          console.log("X:", xValues, "Y:", yValues, "Z:", zValues);
+          if (
+            xValues.some((x) => x < 0) ||
+            yValues.some((y) => y < 0) ||
+            zValues.some((z) => z < 1)
+          ) {
+            alert("坐标无效：X、Y必须≥0，Z必须≥1");
+            return;
+          }
+          const devices = [];
+          let discarded = 0;
+          for (let i = 0; i < count; i++) {
+            const x = xValues[i];
+            let isPillar = false;
+            for (const pillar of pillars) {
+              const halfWidth = pillar.width / 2;
+              if (Math.abs(x - pillar.x) <= halfWidth) {
+                isPillar = true;
+                discarded++;
+                break;
+              }
+            }
+            if (!isPillar) {
+              devices.push({ x: xValues[i], y: yValues[i], z: zValues[i] });
+            }
+          }
+          console.log("Devices:", devices, "Discarded:", discarded);
+          devicesContainer.innerHTML = "";
+          deviceCount = devices.length;
+          devices.forEach((device, i) => {
+            const deviceDiv = document.createElement("div");
+            deviceDiv.className = "device-input";
+            deviceDiv.innerHTML = `设备${
+              i + 1
+            }: <input type="number" placeholder="x (米)" class="x" step="0.1" min="0" value="${
+              device.x
+            }"><input type="number" placeholder="y (米)" class="y" step="0.1" min="0" value="${
+              device.y
+            }"><input type="number" placeholder="z (U)" class="z" step="1" min="1" value="${
+              device.z
+            }">`;
+            devicesContainer.appendChild(deviceDiv);
+          });
+          batchConfigSection.style.display = "none";
+          alert(
+            `已生成${deviceCount}个设备，${discarded}个设备因与柱子重叠被丢弃`
+          );
+        } catch (error) {
+          console.error("batchConfirmBtn error:", error);
+          alert("批量设置设备失败，请检查输入！");
+        }
+      });
+
+      showCalculator.addEventListener("click", (e) => {
+        try {
+          e.preventDefault();
+          calculatorContainer.style.display = "block";
+          mainMenu.style.display = "none";
+        } catch (error) {
+          console.error("showCalculator error:", error);
+        }
+      });
+
+      backBtn.addEventListener("click", () => {
+        try {
+          calculatorContainer.style.display = "none";
+          mainMenu.style.display = "flex";
+        } catch (error) {
+          console.error("backBtn error:", error);
+        }
+      });
+
+      let deviceCount = 2;
+      addDeviceBtn.addEventListener("click", () => {
+        try {
+          deviceCount++;
+          const newDevice = document.createElement("div");
+          newDevice.className = "device-input";
+          newDevice.innerHTML = `设备${deviceCount}: <input type="number" placeholder="x (米)" class="x" step="0.1" min="0"><input type="number" placeholder="y (米)" class="y" step="0.1" min="0"><input type="number" placeholder="z (U)" class="z" step="1" min="1">`;
+          devicesContainer.appendChild(newDevice);
+        } catch (error) {
+          console.error("addDeviceBtn error:", error);
+          alert("添加设备失败，请重试！");
+        }
+      });
+
+      removeDeviceBtn.addEventListener("click", () => {
+        try {
+          if (deviceCount > 2) {
+            devicesContainer.removeChild(devicesContainer.lastChild);
+            deviceCount--;
+          } else {
+            alert("至少保留两个设备");
+          }
+        } catch (error) {
+          console.error("removeDeviceBtn error:", error);
+          alert("删除设备失败，请重试！");
+        }
+      });
+
+      calculateBtn.addEventListener("click", () => {
+        try {
+          const roomType = roomTypeSelect.value;
+          const aisleType = aisleTypeSelect.value;
+          const isSwitchMode = switchMode.checked;
+          const cabinetWidth =
+            parseFloat(document.getElementById("cabinet-width").value) || 0.6;
+          const cabinetU =
+            parseInt(document.getElementById("cabinet-u").value) || 50;
+          const bridgeHeightInput =
+            parseFloat(document.getElementById("bridge-height").value) ||
+            0.7775;
+          const coldAisleWidth =
+            parseFloat(document.getElementById("cold-aisle-width").value) ||
+            1.0;
+          const hotAisleWidth =
+            parseFloat(document.getElementById("hot-aisle-width").value) || 1.0;
+          const doorX =
+            parseFloat(document.getElementById("door-x").value) || 0;
+          const doorY =
+            parseFloat(document.getElementById("door-y").value) || 0;
+          const shaftX =
+            parseFloat(document.getElementById("shaft-x").value) || 0;
+          const shaftY =
+            parseFloat(document.getElementById("shaft-y").value) || 0;
+          const shaftHeight =
+            parseFloat(document.getElementById("shaft-height").value) || 3.0;
+          if (cabinetU < 1 || cabinetU > 50) {
+            alert("机柜U位数必须在1-50之间");
+            return;
+          }
+          const cabinetTop = cabinetU * 0.04445;
+          const bridgeHeight = toOneDecimal(cabinetTop + bridgeHeightInput);
+          const devices = document.querySelectorAll(".device-input");
+          if (devices.length < 2) {
+            alert("请至少输入两个设备");
+            return;
+          }
+          const coords = [];
+          let valid = true;
+          devices.forEach((device, index) => {
+            const x = parseFloat(device.querySelector(".x").value);
+            const y = parseFloat(device.querySelector(".y").value);
+            const zU = parseInt(device.querySelector(".z").value);
+            if (isNaN(x) || isNaN(y) || isNaN(zU) || x < 0 || y < 0) {
+              alert(`设备${index + 1}的坐标无效（X、Y必须≥0）`);
+              valid = false;
+              return;
+            }
+            if (zU < 1 || zU > cabinetU) {
+              alert(`设备${index + 1}的Z坐标超出范围（1到${cabinetU}U）`);
+              valid = false;
+              return;
+            }
+            const xMeter = toOneDecimal(x);
+            const yMeter = calculateRowY(y);
+            const zMeter = toOneDecimal(zU * 0.04445);
+            const rowIndex = Math.round(y);
+            const cabinetRow =
+              parseInt(document.getElementById("row-count").value) - rowIndex;
+            coords.push({
+              name: `设备${index + 1}`,
+              x: xMeter + (roomType === "same-floor" ? doorX : 0),
+              y: yMeter + (roomType === "same-floor" ? doorY : 0),
+              z: zMeter,
+              zU,
+              cabinetInfo: `(行${cabinetRow > 0 ? cabinetRow : 1}, ${x.toFixed(
+                1
+              )}, ${zU}U)`,
+            });
+          });
+          if (!valid || coords.length < 2) return;
+          let tableHTML =
+            "<table><tr><th>设备对</th><th>坐标信息</th><th>到桥架距离 (米)</th><th>总距离 (米)</th></tr>";
+          let stepsHTML = "<h3>计算思路</h3>";
+          let cable10m = 0,
+            cable5m = 0;
+          const connections = isSwitchMode
+            ? coords.slice(1).map((_, j) => [0, j + 1])
+            : Array.from({ length: coords.length }, (_, i) =>
+                Array.from({ length: coords.length - i - 1 }, (_, j) => [
+                  i,
+                  i + j + 1,
+                ])
+              ).flat();
+          coords.forEach(
+            (coord) =>
+              (stepsHTML += `<p>${coord.name} 坐标: (${toOneDecimal(
+                coord.x
+              )}, ${toOneDecimal(coord.y)}, ${toOneDecimal(coord.z)})</p>`)
+          );
+          connections.forEach(([i, j]) => {
+            let adjustedX1 = coords[i].x;
+            let adjustedX2 = coords[j].x;
+            let adjustedY1 = coords[i].y;
+            let adjustedY2 = coords[j].y;
+            let extraZ = 0;
+            let horizontalDistance = 0;
+            let xDistance = 0;
+            let yDistance = 0;
+            if (roomType === "cross-floor") {
+              const shaftPath1 = toOneDecimal(
+                Math.sqrt(
+                  Math.pow(coords[i].x - shaftX, 2) +
+                    Math.pow(coords[i].y - shaftY, 2)
+                ) + shaftHeight
+              );
+              const shaftPath2 = toOneDecimal(
+                Math.sqrt(
+                  Math.pow(coords[j].x - shaftX, 2) +
+                    Math.pow(coords[j].y - shaftY, 2)
+                ) + shaftHeight
+              );
+              adjustedX1 = adjustedX2 = shaftX;
+              adjustedY1 = adjustedY2 = shaftY;
+              extraZ = toOneDecimal(shaftHeight * 2);
+              horizontalDistance = extraZ;
+            } else {
+              xDistance = toOneDecimal(Math.abs(adjustedX2 - adjustedX1));
+              yDistance = toOneDecimal(Math.abs(adjustedY2 - adjustedY1));
+              horizontalDistance =
+                aisleType === "cold"
+                  ? toOneDecimal(xDistance + yDistance)
+                  : toOneDecimal(xDistance + 2 * cabinetWidth + yDistance);
+            }
+            const bridgeDistance1 = toOneDecimal(
+              Math.abs(bridgeHeight - coords[i].z)
+            );
+            const bridgeDistance2 = toOneDecimal(
+              Math.abs(bridgeHeight - coords[j].z)
+            );
+            const distance = toOneDecimal(
+              bridgeDistance1 + horizontalDistance + bridgeDistance2 + extraZ
+            );
+            if (distance >= 10) cable10m++;
+            else if (distance >= 5) cable5m++;
+            stepsHTML += `<p>${coords[i].name} - ${coords[j].name}:</p><ul>`;
+            stepsHTML += `<li>设备${i + 1}到桥架: |${toOneDecimal(
+              bridgeHeight
+            )} - ${toOneDecimal(coords[i].z)}| = ${bridgeDistance1}米</li>`;
+            if (roomType === "cross-floor")
+              stepsHTML += `<li>桥架上水平距离: 竖井路径 ${extraZ}米</li>`;
+            else if (aisleType === "cold")
+              stepsHTML += `<li>桥架上水平距离: X方向 |${toOneDecimal(
+                adjustedX2
+              )} - ${toOneDecimal(
+                adjustedX1
+              )}| = ${xDistance}米 + Y方向 |${toOneDecimal(
+                adjustedY2
+              )} - ${toOneDecimal(
+                adjustedY1
+              )}| = ${yDistance}米 = ${horizontalDistance}米</li>`;
+            else
+              stepsHTML += `<li>桥架上水平距离: X方向 |${toOneDecimal(
+                adjustedX2
+              )} - ${toOneDecimal(
+                adjustedX1
+              )}| = ${xDistance}米 + 2 × ${toOneDecimal(
+                cabinetWidth
+              )} + Y方向 |${toOneDecimal(adjustedY2)} - ${toOneDecimal(
+                adjustedY1
+              )}| = ${yDistance}米 = ${horizontalDistance}米</li>`;
+            stepsHTML += `<li>桥架到设备${j + 1}: |${toOneDecimal(
+              bridgeHeight
+            )} - ${toOneDecimal(coords[j].z)}| = ${bridgeDistance2}米</li>`;
+            stepsHTML += `<li>总距离: ${bridgeDistance1} + ${horizontalDistance} + ${bridgeDistance2}${
+              extraZ ? ` + ${extraZ}` : ""
+            } = ${distance}米</li></ul>`;
+            const cabinetInfo = `${coords[i].name} ${coords[i].cabinetInfo} - ${coords[j].name} ${coords[j].cabinetInfo}`;
+            tableHTML += `<tr><td>${coords[i].name} - ${
+              coords[j].name
+            }</td><td>${cabinetInfo}</td><td>${toOneDecimal(
+              bridgeDistance1 + bridgeDistance2
+            )}</td><td>${distance}</td></tr>`;
+          });
+          tableHTML += "</table>";
+          document.getElementById("result-table").innerHTML = tableHTML;
+          document.getElementById("calculation-steps").innerHTML = stepsHTML;
+          document.getElementById(
+            "cable-statistics"
+          ).innerHTML = `<p>线缆统计:</p><p>10米线缆: ${cable10m} 根</p><p>5米线缆: ${cable5m} 根</p>`;
+        } catch (error) {
+          console.error("calculateBtn error:", error);
+          alert("距离计算失败，请检查设备坐标！");
+        }
+      });
+    </script>
+  </body>
+</html>
